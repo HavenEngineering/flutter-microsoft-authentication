@@ -39,8 +39,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> _acquireTokenInteractively() async {
     String authToken;
     try {
-      authToken = await this.fma.acquireTokenInteractively;
-    } on PlatformException catch(e) {
+      authToken = (await this.fma.acquireTokenInteractively)['access token'];
+    } on PlatformException catch (e) {
       authToken = 'Failed to get token.';
       print(e.message);
     }
@@ -52,8 +52,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> _acquireTokenSilently() async {
     String authToken;
     try {
-      authToken = await this.fma.acquireTokenSilently;
-    } on PlatformException catch(e) {
+      authToken = (await this.fma.acquireTokenSilently)['access token'];
+    } on PlatformException catch (e) {
       authToken = 'Failed to get token silently.';
       print(e.message);
     }

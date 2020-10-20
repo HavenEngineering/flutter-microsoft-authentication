@@ -128,7 +128,7 @@ extension ViewController {
 
             self.accessToken = result.accessToken
             print("Access token is \(self.accessToken)")
-            flutterResult(self.accessToken)
+            flutterResult(["access token": result.accessToken, "ID token": result.idToken])
         }
 
     }
@@ -195,7 +195,7 @@ extension ViewController {
             self.accessToken = result.accessToken
             print("Refreshed Access token is \(self.accessToken)")
 
-            flutterResult(self.accessToken)
+            flutterResult(["access token": result.accessToken, "ID token": result.idToken])
         }
     }
 
