@@ -183,15 +183,19 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
 
                 Log.d(TAG, "Authentication failed: ${exception.errorCode}")
 
-                if (exception is MsalClientException) {
-                    /* Exception inside MSAL, more info inside MsalError.java */
-                    Log.d(TAG, "Authentication failed: MsalClientException")
-                    result.error("MsalClientException", exception.errorCode, null)
+                when (exception) {
+                    is MsalClientException -> {
+                        /* Exception inside MSAL, more info inside MsalError.java */
+                        Log.d(TAG, "Authentication failed: MsalClientException")
+                        result.error("MsalClientException", exception.errorCode, null)
 
-                } else if (exception is MsalServiceException) {
-                    /* Exception when communicating with the STS, likely config issue */
-                    Log.d(TAG, "Authentication failed: MsalServiceException")
-                    result.error("MsalServiceException", exception.errorCode, null)
+                    }
+                    is MsalServiceException -> {
+                        /* Exception when communicating with the STS, likely config issue */
+                        Log.d(TAG, "Authentication failed: MsalServiceException")
+                        result.error("MsalServiceException", exception.errorCode, null)
+                    }
+                    else -> result.error("Msal", "Unknown error", null)
                 }
             }
 
@@ -231,6 +235,7 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
                         /* Tokens expired or no session, retry with interactive */
                         result.error("MsalUiRequiredException", exception.message, null)
                     }
+                    else -> result.error("Msal", "Unknown error", null)
                 }
             }
 
