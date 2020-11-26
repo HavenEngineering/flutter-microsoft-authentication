@@ -1,6 +1,11 @@
+## 0.2.0
+
+* Upgraded dependencies
+* Implemented token acquiring to return both access and ID tokens
+
 ## 0.1.1
 
-* Upgraded Android dependancy com.microsoft.identity.client:msal to latest version
+* Upgraded Android dependency com.microsoft.identity.client:msal to latest version
 
 ## 0.1.0
 
