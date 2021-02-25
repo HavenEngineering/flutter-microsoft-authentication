@@ -51,7 +51,7 @@ class FlutterMicrosoftAuthentication {
   }
 
   /// Sign out of current active account.
-  Future<String> get signOut async {
+  Future<void> get signOut async {
     await _didAndroidInitialize;
     try {
       return await _channel.invokeMethod('signOut', _createMethodcallArguments());

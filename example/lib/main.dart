@@ -62,7 +62,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> _signOut() async {
     String authToken;
     try {
-      authToken = await this.fma.signOut;
+      await this.fma.signOut;
+      authToken = "";
     } on PlatformException catch (e) {
       authToken = 'Failed to sign out.';
       print(e.message);
