@@ -32,7 +32,6 @@ public class SwiftFlutterMicrosoftAuthenticationPlugin: NSObject, FlutterPlugin 
     } else {
         result(FlutterError(code:"INVALID_METHOD", message: "The method called is invalid", details: nil))
     }
-
   }
 }
 
@@ -95,7 +94,7 @@ extension ViewController {
 
         let viewController: UIViewController = (UIApplication.shared.delegate?.window??.rootViewController)!;
 
-        self.webViewParamaters = MSALWebviewParameters(parentViewController: viewController)
+        self.webViewParamaters = MSALWebviewParameters(authPresentationViewController: viewController)
     }
 }
 
@@ -164,7 +163,6 @@ extension ViewController {
         applicationContext.acquireTokenSilent(with: parameters) { (result, error) in
 
             if let error = error {
-
                 let nsError = error as NSError
 
                 // interactionRequired means we need to ask the user to sign-in. This usually happens
