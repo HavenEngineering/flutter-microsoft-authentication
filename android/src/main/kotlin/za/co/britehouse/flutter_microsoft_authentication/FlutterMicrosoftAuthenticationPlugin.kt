@@ -67,19 +67,15 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
             "loadAccount" -> loadAccount(result)
             "signOut" -> signOut(result)
-            "init" -> initPlugin(configPath)
+            "init" -> initPlugin(configPath, result)
             else -> result.notImplemented()
         }
-
-
     }
 
     @Throws(IOException::class)
     private fun getConfigFile(path: String): File {
         val key: String = mRegistrar.lookupKeyForAsset(path)
         val configFile = File(mainActivity.applicationContext.cacheDir, "config.json")
-
-
 
         try {
             val assetManager = mRegistrar.context().assets
@@ -103,11 +99,7 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
         }
     }
 
-    private fun initPlugin(assetPath: String) {
-        createSingleAccountPublicClientApplication(assetPath)
-    }
-
-    private fun createSingleAccountPublicClientApplication(assetPath: String) {
+    private fun initPlugin(assetPath: String, result: Result) {
         val configFile = getConfigFile(assetPath)
         val context: Context = mainActivity.applicationContext
 
@@ -123,10 +115,12 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
                          */
                         Log.d(TAG, "INITIALIZED")
                         mSingleAccountApp = application
+                        result.success(null)
                     }
 
                     override fun onError(exception: MsalException) {
                         Log.e(TAG, exception.message)
+                        result.error("INIT_FAILED", "Android not initialized", exception.message)
                     }
                 })
     }
@@ -162,7 +156,6 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
                 result.error("ERROR", exception.errorCode, null)
             }
         })
-
     }
 
     private fun getAuthInteractiveCallback(result: Result): AuthenticationCallback {
