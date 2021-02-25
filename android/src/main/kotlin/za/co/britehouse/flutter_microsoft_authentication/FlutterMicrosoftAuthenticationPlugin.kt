@@ -65,7 +65,6 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
         when (call.method) {
             "acquireTokenInteractively" -> acquireTokenInteractively(scopes, authority, result)
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
-            "loadAccount" -> loadAccount(result)
             "signOut" -> signOut(result)
             "init" -> initPlugin(configPath, result)
             else -> result.notImplemented()
@@ -152,8 +151,7 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
 
             override fun onError(exception: MsalException) {
                 Log.e(TAG, "Failed to sign out")
-                result.error(exception.errorCode
-                        ?: "SIGN_OUT", "Received error signing account out", exception.message)
+                result.error(exception.errorCode ?: "SIGN_OUT", "Received error signing account out", exception.message)
             }
         })
     }
@@ -239,33 +237,4 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
             }
         }
     }
-
-    private fun loadAccount(result: Result) {
-        if (mSingleAccountApp == null) {
-            result.error("MsalClientException", "Account not initialized", null)
-        }
-
-        return mSingleAccountApp!!.getCurrentAccountAsync(object :
-                ISingleAccountPublicClientApplication.CurrentAccountCallback {
-            override fun onAccountLoaded(activeAccount: IAccount?) {
-                if (activeAccount != null) {
-                    result.success(activeAccount.username)
-                }
-            }
-
-            override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
-                if (currentAccount == null) {
-                    // Perform a cleanup task as the signed-in account changed.
-                    Log.d(TAG, "No Account")
-                    result.success(null)
-                }
-            }
-
-            override fun onError(exception: MsalException) {
-                Log.e(TAG, exception.message)
-                result.error("MsalException", exception.message, null)
-            }
-        })
-    }
-
 }
