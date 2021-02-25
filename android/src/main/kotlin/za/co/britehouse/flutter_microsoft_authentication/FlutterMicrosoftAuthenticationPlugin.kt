@@ -145,15 +145,15 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
         }
-
-        return mSingleAccountApp!!.signOut(object : ISingleAccountPublicClientApplication.SignOutCallback {
+        mSingleAccountApp!!.signOut(object : ISingleAccountPublicClientApplication.SignOutCallback {
             override fun onSignOut() {
-                result.success("SUCCESS")
+                result.success(null)
             }
 
             override fun onError(exception: MsalException) {
-                Log.e(TAG, exception.message)
-                result.error("ERROR", exception.errorCode, null)
+                Log.e(TAG, "Failed to sign out")
+                result.error(exception.errorCode
+                        ?: "SIGN_OUT", "Received error signing account out", exception.message)
             }
         })
     }
