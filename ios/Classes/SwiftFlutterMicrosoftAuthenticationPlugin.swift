@@ -30,7 +30,7 @@ public class SwiftFlutterMicrosoftAuthenticationPlugin: NSObject, FlutterPlugin 
     } else if(call.method == "signOut") {
         msalView.signOut(flutterResult: result)
     } else {
-        result(FlutterError(code:"INVALID_METHOD", message: "The method called is invalid", details: nil))
+        result(FlutterMethodNotImplemented)
     }
   }
 }
@@ -111,10 +111,11 @@ extension ViewController {
         let parameters = MSALInteractiveTokenParameters(scopes: kScopes, webviewParameters: webViewParameters)
         parameters.promptType = .selectAccount;
 
-        applicationContext.acquireToken(with: parameters) { (result, error) in
+        applicationContext.acquireToken(with: parameters) { (result: MSALResult?, error: Error?) in
 
             if let error = error {
-                flutterResult(FlutterError(code: "AUTH_ERROR", message: "Could not acquire token", details: nil))
+                let nsError = error as NSError
+                flutterResult(FlutterError(code: "AUTH_ERROR", message: "Could not acquire token", details: nsError.description))
                 print("Could not acquire token: \(error)")
                 return
             }
@@ -179,7 +180,7 @@ extension ViewController {
                         return
                     }
                 }
-
+                flutterResult(FlutterError(code: "AUTH_ERROR", message: "Could not acquire token: No result returned", details: nsError.description))
                 print("Could not acquire token silently: \(error)")
                 return
             }
@@ -247,11 +248,10 @@ extension ViewController {
             try applicationContext.remove(account)
 
             self.accessToken = ""
-
-            flutterResult(self.accessToken)
+            flutterResult(nil)
 
         } catch let error as NSError {
-            flutterResult(FlutterError(code: "SIGN_OUT",  message: "Received error signing account out", details: nil))
+            flutterResult(FlutterError(code: "SIGN_OUT",  message: "Received error signing account out", details: error.description))
             print("Received error signing account out: \(error)")
         }
     }
