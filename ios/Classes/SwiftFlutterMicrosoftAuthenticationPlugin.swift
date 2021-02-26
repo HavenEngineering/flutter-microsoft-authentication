@@ -233,9 +233,15 @@ extension ViewController {
      */
     func signOut(flutterResult: @escaping FlutterResult) {
 
-        guard let applicationContext = self.applicationContext else { return }
+        guard let applicationContext = self.applicationContext else {
+            flutterResult(nil)
+            return
+        }
 
-        guard let account = self.currentAccount(flutterResult: flutterResult) else { return }
+        guard let account = self.currentAccount(flutterResult: flutterResult) else {
+            flutterResult(nil)
+            return
+        }
 
         do {
 
