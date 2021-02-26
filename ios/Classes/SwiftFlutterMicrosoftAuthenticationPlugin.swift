@@ -115,7 +115,7 @@ extension ViewController {
 
             if let error = error {
                 let nsError = error as NSError
-                flutterResult(FlutterError(code: "AUTH_ERROR", message: "Could not acquire token", details: nsError.description))
+                flutterResult(FlutterError(code: nsError.code.description, message: nsError.userInfo.description, details: nsError.domain))
                 print("Could not acquire token: \(error)")
                 return
             }
@@ -180,7 +180,7 @@ extension ViewController {
                         return
                     }
                 }
-                flutterResult(FlutterError(code: "AUTH_ERROR", message: "Could not acquire token: No result returned", details: nsError.description))
+                flutterResult(FlutterError(code: nsError.code.description, message: nsError.userInfo.description, details: nsError.domain))
                 print("Could not acquire token silently: \(error)")
                 return
             }
@@ -220,7 +220,7 @@ extension ViewController {
             }
 
         } catch let error as NSError {
-            flutterResult(FlutterError(code: "NO_ACCOUNT",  message: "Didn't find any accounts in cache", details: nil))
+            flutterResult(FlutterError(code: error.code.description, message: error.userInfo.description, details: error.domain))
             print("Didn't find any accounts in cache: \(error)")
         }
 
@@ -257,7 +257,7 @@ extension ViewController {
             flutterResult(nil)
 
         } catch let error as NSError {
-            flutterResult(FlutterError(code: "SIGN_OUT",  message: "Received error signing account out", details: error.description))
+            flutterResult(FlutterError(code: error.code.description, message: error.userInfo.description, details: error.domain))
             print("Received error signing account out: \(error)")
         }
     }
