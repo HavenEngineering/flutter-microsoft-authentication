@@ -1,3 +1,10 @@
+## 0.3.0
+
+* Upgraded dependencies
+* Removed android-only 'loadAccount'
+* Implement returning detailed errors
+* Fix 'signOut' to return result to Flutter on all completions
+
 ## 0.2.0
 
 * Upgraded dependencies
