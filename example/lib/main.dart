@@ -62,8 +62,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> _signOut() async {
     String authToken;
     try {
-      await this.fma.signOut;
-      authToken = "";
+      await fma.signOut;
+      authToken = '';
     } on PlatformException catch (e) {
       authToken = 'Failed to sign out.';
       print(e.message);
@@ -102,16 +102,10 @@ class _MyAppState extends State<MyApp> {
                   RaisedButton(onPressed: _acquireTokenSilently, child: Text('Acquire Token Silently')),
                   RaisedButton(onPressed: _signOut, child: Text('Sign Out')),
                   RaisedButton(onPressed: _fetchMicrosoftProfile, child: Text('Fetch Profile')),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
+                  SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text("Profile: $_msProfile"),
-                  SizedBox(
-                    height: 8,
-                  ),
+                  SizedBox(height: 8),
                   Text("Token: $_authToken"),
                 ],
               ),
