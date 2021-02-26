@@ -8,6 +8,7 @@ class FlutterMicrosoftAuthentication {
   List<String> _kScopes;
   String _kClientID, _kAuthority;
   String _androidConfigAssetPath;
+  bool _isAndroid;
   Future _didAndroidInitialize;
 
   FlutterMicrosoftAuthentication({
@@ -20,6 +21,7 @@ class FlutterMicrosoftAuthentication {
     _kAuthority = kAuthority;
     _kScopes = kScopes;
     _androidConfigAssetPath = androidConfigAssetPath;
+    _isAndroid = Platform.isAndroid;
     _initAndroid();
   }
 
@@ -33,26 +35,26 @@ class FlutterMicrosoftAuthentication {
   }
 
   Future<void> _initAndroid() async {
-    if (Platform.isAndroid) _didAndroidInitialize = _channel.invokeMethod("init", _createMethodcallArguments());
+    if (_isAndroid) _didAndroidInitialize = _channel.invokeMethod("init", _createMethodcallArguments());
   }
 
   /// Acquire auth tokens with interactive flow.
   Future<Map> get acquireTokenInteractively async {
-    await _didAndroidInitialize;
+    if (_isAndroid) await _didAndroidInitialize;
     final dynamic result = await _channel.invokeMethod('acquireTokenInteractively', _createMethodcallArguments());
     return result;
   }
 
   /// Acquire auth token silently.
   Future<Map> get acquireTokenSilently async {
-    await _didAndroidInitialize;
+    if (_isAndroid) await _didAndroidInitialize;
     final dynamic result = await _channel.invokeMethod('acquireTokenSilently', _createMethodcallArguments());
     return result;
   }
 
   /// Sign out of current active account.
   Future<void> get signOut async {
-    await _didAndroidInitialize;
+    if (_isAndroid) await _didAndroidInitialize;
     try {
       return await _channel.invokeMethod('signOut', _createMethodcallArguments());
     } on PlatformException catch (error) {
