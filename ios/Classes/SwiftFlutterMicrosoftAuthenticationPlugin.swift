@@ -30,9 +30,8 @@ public class SwiftFlutterMicrosoftAuthenticationPlugin: NSObject, FlutterPlugin 
     } else if(call.method == "signOut") {
         msalView.signOut(flutterResult: result)
     } else {
-        result(FlutterError(code:"INVALID_METHOD", message: "The method called is invalid", details: nil))
+        result(FlutterMethodNotImplemented)
     }
-
   }
 }
 
@@ -95,7 +94,7 @@ extension ViewController {
 
         let viewController: UIViewController = (UIApplication.shared.delegate?.window??.rootViewController)!;
 
-        self.webViewParamaters = MSALWebviewParameters(parentViewController: viewController)
+        self.webViewParamaters = MSALWebviewParameters(authPresentationViewController: viewController)
     }
 }
 
@@ -112,10 +111,11 @@ extension ViewController {
         let parameters = MSALInteractiveTokenParameters(scopes: kScopes, webviewParameters: webViewParameters)
         parameters.promptType = .selectAccount;
 
-        applicationContext.acquireToken(with: parameters) { (result, error) in
+        applicationContext.acquireToken(with: parameters) { (result: MSALResult?, error: Error?) in
 
             if let error = error {
-                flutterResult(FlutterError(code: "AUTH_ERROR", message: "Could not acquire token", details: nil))
+                let nsError = error as NSError
+                flutterResult(FlutterError(code: nsError.code.description, message: nsError.userInfo.description, details: nsError.domain))
                 print("Could not acquire token: \(error)")
                 return
             }
@@ -164,7 +164,6 @@ extension ViewController {
         applicationContext.acquireTokenSilent(with: parameters) { (result, error) in
 
             if let error = error {
-
                 let nsError = error as NSError
 
                 // interactionRequired means we need to ask the user to sign-in. This usually happens
@@ -181,7 +180,7 @@ extension ViewController {
                         return
                     }
                 }
-
+                flutterResult(FlutterError(code: nsError.code.description, message: nsError.userInfo.description, details: nsError.domain))
                 print("Could not acquire token silently: \(error)")
                 return
             }
@@ -221,7 +220,7 @@ extension ViewController {
             }
 
         } catch let error as NSError {
-            flutterResult(FlutterError(code: "NO_ACCOUNT",  message: "Didn't find any accounts in cache", details: nil))
+            flutterResult(FlutterError(code: error.code.description, message: error.userInfo.description, details: error.domain))
             print("Didn't find any accounts in cache: \(error)")
         }
 
@@ -234,9 +233,15 @@ extension ViewController {
      */
     func signOut(flutterResult: @escaping FlutterResult) {
 
-        guard let applicationContext = self.applicationContext else { return }
+        guard let applicationContext = self.applicationContext else {
+            flutterResult(nil)
+            return
+        }
 
-        guard let account = self.currentAccount(flutterResult: flutterResult) else { return }
+        guard let account = self.currentAccount(flutterResult: flutterResult) else {
+            flutterResult(nil)
+            return
+        }
 
         do {
 
@@ -249,11 +254,10 @@ extension ViewController {
             try applicationContext.remove(account)
 
             self.accessToken = ""
-
-            flutterResult(self.accessToken)
+            flutterResult(nil)
 
         } catch let error as NSError {
-            flutterResult(FlutterError(code: "SIGN_OUT",  message: "Received error signing account out", details: nil))
+            flutterResult(FlutterError(code: error.code.description, message: error.userInfo.description, details: error.domain))
             print("Received error signing account out: \(error)")
         }
     }

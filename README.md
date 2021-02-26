@@ -19,8 +19,6 @@ String authToken = await this.fma.acquireTokenSilently;
 // Sign out
 await this.fma.signOut;
 
-// Android load account username
-await this.fma.loadAccount;
 ```
 
 ### Flutter

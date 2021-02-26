@@ -2,10 +2,10 @@ PODS:
   - Flutter (1.0.0)
   - flutter_microsoft_authentication (0.0.3):
     - Flutter
-    - MSAL (~> 1.0.3)
-  - MSAL (1.0.3):
-    - MSAL/app-lib (= 1.0.3)
-  - MSAL/app-lib (1.0.3)
+    - MSAL
+  - MSAL (1.1.15):
+    - MSAL/app-lib (= 1.1.15)
+  - MSAL/app-lib (1.1.15)
 
 DEPENDENCIES:
   - Flutter (from `.symlinks/flutter/ios`)
@@ -23,9 +23,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_microsoft_authentication: 121074a9b2f1babd8a335043111eb05820f1b6ac
-  MSAL: 351711995bd31170a2e887941115a3ed17b178e8
+  flutter_microsoft_authentication: 2eb700f571a4d42e37f14a588e86f5fd1684a861
+  MSAL: 9b1f07e342ebe825ebe7ba77b5fdf2c46aa7ecff
 
 PODFILE CHECKSUM: 2c78efac486a5a4c55cbdb75659105e9a24d1328
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.1

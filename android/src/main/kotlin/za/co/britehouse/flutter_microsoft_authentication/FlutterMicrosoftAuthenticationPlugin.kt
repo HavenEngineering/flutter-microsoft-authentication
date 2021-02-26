@@ -65,21 +65,16 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
         when (call.method) {
             "acquireTokenInteractively" -> acquireTokenInteractively(scopes, authority, result)
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
-            "loadAccount" -> loadAccount(result)
             "signOut" -> signOut(result)
-            "init" -> initPlugin(configPath)
+            "init" -> initPlugin(configPath, result)
             else -> result.notImplemented()
         }
-
-
     }
 
     @Throws(IOException::class)
     private fun getConfigFile(path: String): File {
         val key: String = mRegistrar.lookupKeyForAsset(path)
         val configFile = File(mainActivity.applicationContext.cacheDir, "config.json")
-
-
 
         try {
             val assetManager = mRegistrar.context().assets
@@ -103,11 +98,7 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
         }
     }
 
-    private fun initPlugin(assetPath: String) {
-        createSingleAccountPublicClientApplication(assetPath)
-    }
-
-    private fun createSingleAccountPublicClientApplication(assetPath: String) {
+    private fun initPlugin(assetPath: String, result: Result) {
         val configFile = getConfigFile(assetPath)
         val context: Context = mainActivity.applicationContext
 
@@ -123,10 +114,13 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
                          */
                         Log.d(TAG, "INITIALIZED")
                         mSingleAccountApp = application
+                        result.success(null)
                     }
 
                     override fun onError(exception: MsalException) {
                         Log.e(TAG, exception.message)
+                        result.error(exception.errorCode
+                                ?: "Account not initialized", exception.message, null)
                     }
                 })
     }
@@ -151,18 +145,16 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
         }
-
-        return mSingleAccountApp!!.signOut(object : ISingleAccountPublicClientApplication.SignOutCallback {
+        mSingleAccountApp!!.signOut(object : ISingleAccountPublicClientApplication.SignOutCallback {
             override fun onSignOut() {
-                result.success("SUCCESS")
+                result.success(null)
             }
 
             override fun onError(exception: MsalException) {
                 Log.e(TAG, exception.message)
-                result.error("ERROR", exception.errorCode, null)
+                result.error(exception.errorCode ?: "SIGN_OUT", exception.message, null)
             }
         })
-
     }
 
     private fun getAuthInteractiveCallback(result: Result): AuthenticationCallback {
@@ -187,15 +179,17 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
                     is MsalClientException -> {
                         /* Exception inside MSAL, more info inside MsalError.java */
                         Log.d(TAG, "Authentication failed: MsalClientException")
-                        result.error("MsalClientException", exception.errorCode, null)
+                        result.error(exception.errorCode
+                                ?: "MsalClientException", exception.message, null)
 
                     }
                     is MsalServiceException -> {
                         /* Exception when communicating with the STS, likely config issue */
                         Log.d(TAG, "Authentication failed: MsalServiceException")
-                        result.error("MsalServiceException", exception.errorCode, null)
+                        result.error(exception.errorCode
+                                ?: "MsalServiceException", exception.message, null)
                     }
-                    else -> result.error("Msal", "Unknown error", null)
+                    else -> result.error(exception.errorCode ?: "Msal", exception.message, null)
                 }
             }
 
@@ -225,17 +219,20 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
                 when (exception) {
                     is MsalClientException -> {
                         /* Exception inside MSAL, more info inside MsalError.java */
-                        result.error("MsalClientException", exception.message, null)
+                        result.error(exception.errorCode
+                                ?: "MsalClientException", exception.message, null)
                     }
                     is MsalServiceException -> {
                         /* Exception when communicating with the STS, likely config issue */
-                        result.error("MsalServiceException", exception.message, null)
+                        result.error(exception.errorCode
+                                ?: "MsalServiceException", exception.message, null)
                     }
                     is MsalUiRequiredException -> {
                         /* Tokens expired or no session, retry with interactive */
-                        result.error("MsalUiRequiredException", exception.message, null)
+                        result.error(exception.errorCode
+                                ?: "MsalUiRequiredException", exception.message, null)
                     }
-                    else -> result.error("Msal", "Unknown error", null)
+                    else -> result.error(exception.errorCode ?: "Msal", exception.message, null)
                 }
             }
 
@@ -246,33 +243,4 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
             }
         }
     }
-
-    private fun loadAccount(result: Result) {
-        if (mSingleAccountApp == null) {
-            result.error("MsalClientException", "Account not initialized", null)
-        }
-
-        return mSingleAccountApp!!.getCurrentAccountAsync(object :
-                ISingleAccountPublicClientApplication.CurrentAccountCallback {
-            override fun onAccountLoaded(activeAccount: IAccount?) {
-                if (activeAccount != null) {
-                    result.success(activeAccount.username)
-                }
-            }
-
-            override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
-                if (currentAccount == null) {
-                    // Perform a cleanup task as the signed-in account changed.
-                    Log.d(TAG, "No Account")
-                    result.success(null)
-                }
-            }
-
-            override fun onError(exception: MsalException) {
-                Log.e(TAG, exception.message)
-                result.error("MsalException", exception.message, null)
-            }
-        })
-    }
-
 }
