@@ -8,32 +8,55 @@ import com.microsoft.identity.client.exception.MsalClientException
 import com.microsoft.identity.client.exception.MsalException
 import com.microsoft.identity.client.exception.MsalServiceException
 import com.microsoft.identity.client.exception.MsalUiRequiredException
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
 
-class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
+class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
+    private lateinit var channel: MethodChannel
+
     private var mSingleAccountApp: ISingleAccountPublicClientApplication? = null
+    private var binding: FlutterPlugin.FlutterPluginBinding? = null
+    private var activity: Activity? = null
+
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        this.binding = binding
+        this.channel = MethodChannel(binding.binaryMessenger, "flutter_microsoft_authentication")
+        this.channel.setMethodCallHandler(this)
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        this.activity = binding.activity;
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        activity = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        this.activity = binding.activity
+    }
+
+    override fun onDetachedFromActivity() {
+        this.activity = null
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        this.binding = null
+        this.activity = null
+        this.channel.setMethodCallHandler(null)
+    }
 
     companion object {
-
-        lateinit var mainActivity: Activity
-        lateinit var mRegistrar: Registrar
         private const val TAG = "FMAuthPlugin"
-
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), "flutter_microsoft_authentication")
-            channel.setMethodCallHandler(FlutterMicrosoftAuthenticationPlugin())
-            mainActivity = registrar.activity()
-            mRegistrar = registrar
-        }
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -73,11 +96,11 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
 
     @Throws(IOException::class)
     private fun getConfigFile(path: String): File {
-        val key: String = mRegistrar.lookupKeyForAsset(path)
-        val configFile = File(mainActivity.applicationContext.cacheDir, "config.json")
+        val key: String = binding!!.flutterAssets.getAssetFilePathByName(path)
+        val configFile = File(binding!!.applicationContext.cacheDir, "config.json")
 
         try {
-            val assetManager = mRegistrar.context().assets
+            val assetManager = binding!!.applicationContext.assets
 
             val inputStream = assetManager.open(key)
             val outputStream = FileOutputStream(configFile)
@@ -100,7 +123,7 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
 
     private fun initPlugin(assetPath: String, result: Result) {
         val configFile = getConfigFile(assetPath)
-        val context: Context = mainActivity.applicationContext
+        val context: Context = binding!!.applicationContext
 
         PublicClientApplication.createSingleAccountPublicClientApplication(
                 context,
@@ -130,7 +153,7 @@ class FlutterMicrosoftAuthenticationPlugin : MethodCallHandler {
             result.error("MsalClientException", "Account not initialized", null)
         }
 
-        return mSingleAccountApp!!.signIn(mainActivity, "", scopes, getAuthInteractiveCallback(result))
+        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
     }
 
     private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {
