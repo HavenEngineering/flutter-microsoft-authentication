@@ -34,7 +34,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        this.activity = binding.activity;
+        this.activity = binding.activity
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
