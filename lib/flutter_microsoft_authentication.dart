@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+
 import 'package:flutter/services.dart';
 
 class FlutterMicrosoftAuthentication {
@@ -9,25 +10,25 @@ class FlutterMicrosoftAuthentication {
   String _kClientID, _kAuthority;
   String _androidConfigAssetPath;
   bool _isAndroid;
-  Future _didAndroidInitialize;
+
+  late Future _didAndroidInitialize;
 
   FlutterMicrosoftAuthentication({
-    String kClientID,
-    String kAuthority,
-    List<String> kScopes,
-    String androidConfigAssetPath,
-  }) {
-    _kClientID = kClientID;
-    _kAuthority = kAuthority;
-    _kScopes = kScopes;
-    _androidConfigAssetPath = androidConfigAssetPath;
-    _isAndroid = Platform.isAndroid;
+    required String kClientID,
+    required String kAuthority,
+    required List<String> kScopes,
+    required String androidConfigAssetPath,
+  })   : _kClientID = kClientID,
+        _kAuthority = kAuthority,
+        _kScopes = kScopes,
+        _androidConfigAssetPath = androidConfigAssetPath,
+        _isAndroid = Platform.isAndroid {
     _initAndroid();
   }
 
   Map<String, dynamic> _createMethodcallArguments() {
     var res = <String, dynamic>{"kScopes": _kScopes, "kClientID": _kClientID, "kAuthority": _kAuthority};
-    if (Platform.isAndroid && _androidConfigAssetPath != null) {
+    if (Platform.isAndroid) {
       res.addAll({"configPath": _androidConfigAssetPath});
     }
     print(res);
