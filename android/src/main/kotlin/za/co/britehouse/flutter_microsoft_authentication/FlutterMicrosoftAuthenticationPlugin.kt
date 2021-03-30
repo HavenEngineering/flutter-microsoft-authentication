@@ -95,12 +95,12 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
     }
 
     @Throws(IOException::class)
-    private fun getConfigFile(path: String): File {
-        val key: String = binding!!.flutterAssets.getAssetFilePathByName(path)
-        val configFile = File(binding!!.applicationContext.cacheDir, "config.json")
+    private fun getConfigFile(path: String, binding: FlutterPlugin.FlutterPluginBinding): File {
+        val key: String = binding.flutterAssets.getAssetFilePathByName(path)
+        val configFile = File(binding.applicationContext.cacheDir, "config.json")
 
         try {
-            val assetManager = binding!!.applicationContext.assets
+            val assetManager = binding.applicationContext.assets
 
             val inputStream = assetManager.open(key)
             val outputStream = FileOutputStream(configFile)
@@ -122,30 +122,34 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
     }
 
     private fun initPlugin(assetPath: String, result: Result) {
-        val configFile = getConfigFile(assetPath)
-        val context: Context = binding!!.applicationContext
+        binding?.let {
+            val configFile = getConfigFile(assetPath, it)
+            val context: Context = it.applicationContext
 
-        PublicClientApplication.createSingleAccountPublicClientApplication(
-                context,
-                configFile,
-                object : IPublicClientApplication.ISingleAccountApplicationCreatedListener {
-                    override fun onCreated(application: ISingleAccountPublicClientApplication) {
-                        /**
-                         * This test app assumes that the app is only going to support one account.
-                         * This requires "account_mode" : "SINGLE" in the config json file.
-                         *
-                         */
-                        Log.d(TAG, "INITIALIZED")
-                        mSingleAccountApp = application
-                        result.success(null)
-                    }
+            PublicClientApplication.createSingleAccountPublicClientApplication(
+                    context,
+                    configFile,
+                    object : IPublicClientApplication.ISingleAccountApplicationCreatedListener {
+                        override fun onCreated(application: ISingleAccountPublicClientApplication) {
+                            /**
+                             * This test app assumes that the app is only going to support one account.
+                             * This requires "account_mode" : "SINGLE" in the config json file.
+                             *
+                             */
+                            Log.d(TAG, "INITIALIZED")
+                            mSingleAccountApp = application
+                            result.success(null)
+                        }
 
-                    override fun onError(exception: MsalException) {
-                        Log.e(TAG, exception.message)
-                        result.error(exception.errorCode
-                                ?: "Account not initialized", exception.message, null)
-                    }
-                })
+                        override fun onError(exception: MsalException) {
+                            Log.e(TAG, exception.message)
+                            result.error(exception.errorCode
+                                    ?: "Account not initialized", exception.message, null)
+                        }
+                    })
+        }
+                ?: result.error("FlutterPluginException", "Flutter plugin binding is null, cannot continue configuration", null)
+
     }
 
     private fun acquireTokenInteractively(scopes: Array<String>, authority: String, result: Result) {
