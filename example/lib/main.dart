@@ -95,13 +95,13 @@ class _MyAppState extends State<MyApp> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  RaisedButton(
+                  ElevatedButton(
                     onPressed: _acquireTokenInteractively,
                     child: Text('Acquire Token'),
                   ),
-                  RaisedButton(onPressed: _acquireTokenSilently, child: Text('Acquire Token Silently')),
-                  RaisedButton(onPressed: _signOut, child: Text('Sign Out')),
-                  RaisedButton(onPressed: _fetchMicrosoftProfile, child: Text('Fetch Profile')),
+                  ElevatedButton(onPressed: _acquireTokenSilently, child: Text('Acquire Token Silently')),
+                  ElevatedButton(onPressed: _signOut, child: Text('Sign Out')),
+                  ElevatedButton(onPressed: _fetchMicrosoftProfile, child: Text('Fetch Profile')),
                   SizedBox(height: 8),
                   SizedBox(height: 8),
                   Text("Profile: $_msProfile"),

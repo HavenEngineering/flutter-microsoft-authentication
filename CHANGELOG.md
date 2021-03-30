@@ -1,4 +1,8 @@
-## 0.3.0
+## 0.4.0
+
+* Sound null safety
+
+##0.3.0
 
 * Upgraded dependencies
 * Removed android-only 'loadAccount'
