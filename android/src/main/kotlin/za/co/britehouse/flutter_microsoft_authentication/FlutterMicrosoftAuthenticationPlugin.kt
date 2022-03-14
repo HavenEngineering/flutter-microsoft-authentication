@@ -142,9 +142,9 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                         }
 
                         override fun onError(exception: MsalException) {
-                            Log.e(TAG, exception.message)
+                            Log.e(TAG, exception.toString())
                             result.error(exception.errorCode
-                                    ?: "Account not initialized", exception.message, null)
+                                    ?: "Account not initialized", exception.toString(), null)
                         }
                     })
         }
@@ -178,8 +178,8 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             }
 
             override fun onError(exception: MsalException) {
-                Log.e(TAG, exception.message)
-                result.error(exception.errorCode ?: "SIGN_OUT", exception.message, null)
+                Log.e(TAG, exception.toString())
+                result.error(exception.errorCode ?: "SIGN_OUT", exception.toString(), null)
             }
         })
     }
