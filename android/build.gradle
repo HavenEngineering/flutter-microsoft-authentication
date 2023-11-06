@@ -1,5 +1,5 @@
 group 'za.co.britehouse.flutter_microsoft_authentication'
-version '1.0-SNAPSHOT'
+version '0.5.3'
 
 buildscript {
     ext.kotlin_version = '1.7.20'
