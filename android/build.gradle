@@ -31,6 +31,7 @@ apply plugin: 'kotlinx-serialization'
 
 android {
     compileSdkVersion 33
+    namespace "za.co.britehouse.flutter_microsoft_authentication"
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
