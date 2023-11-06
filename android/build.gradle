@@ -2,7 +2,7 @@ group 'za.co.britehouse.flutter_microsoft_authentication'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.5.30'
+    ext.kotlin_version = '1.7.20'
     repositories {
         google()
         mavenCentral()
