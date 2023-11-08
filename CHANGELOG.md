@@ -1,3 +1,8 @@
+## 0.5.2
+
+* Upgraded dependencies
+* Bumped flutter SDK supported versions
+
 ## 0.4.0
 
 * Sound null safety

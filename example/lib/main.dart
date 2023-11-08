@@ -19,7 +19,7 @@ class _MyAppState extends State<MyApp> {
   String _authToken = 'Unknown Auth Token';
   String _msProfile = 'Unknown Profile';
 
-  FlutterMicrosoftAuthentication fma;
+  late FlutterMicrosoftAuthentication fma;
 
   @override
   void initState() {
@@ -74,7 +74,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   _fetchMicrosoftProfile() async {
-    var response = await http.get(this._graphURI, headers: {"Authorization": "Bearer " + this._authToken});
+    var response = await http.get(this._graphURI as Uri, headers: {"Authorization": "Bearer " + this._authToken});
 
     setState(() {
       _msProfile = json.decode(response.body).toString();
