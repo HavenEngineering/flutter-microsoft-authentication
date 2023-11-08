@@ -1,4 +1,4 @@
-## 0.5.2
+## 0.5.3
 
 * Upgraded dependencies
 * Bumped flutter SDK supported versions
