@@ -1,3 +1,7 @@
+## 0.5.4
+
+* Specify required namespace
+
 ## 0.5.3
 
 * Upgraded dependencies
