@@ -1,3 +1,7 @@
+## 0.5.5
+
+* Bump MSAL sdk version to 4.10.0
+
 ## 0.5.4
 
 * Specify required namespace
