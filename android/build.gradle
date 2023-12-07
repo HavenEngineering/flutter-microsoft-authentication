@@ -1,5 +1,5 @@
 group 'za.co.britehouse.flutter_microsoft_authentication'
-version '0.5.3'
+version '0.5.5'
 
 buildscript {
     ext.kotlin_version = '1.8.22'
@@ -62,10 +62,10 @@ dependencies {
     if (findProject(':msal') != null) {
         // For developer team only.
         localImplementation project(':msal')
-        externalImplementation 'com.microsoft.identity.client:msal:2.0.8'
+        externalImplementation 'com.microsoft.identity.client:msal:4.10.0'
     }
     else {
         // Downloads and Builds MSAL from maven central.
-        implementation 'com.microsoft.identity.client:msal:2.0.8'
+        implementation 'com.microsoft.identity.client:msal:4.10.0'
     }
 }
