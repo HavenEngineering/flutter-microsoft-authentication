@@ -191,10 +191,13 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 /* Successfully got a token, use it to call a protected resource - MSGraph */
                 Log.d(TAG, "Successfully authenticated")
-                result.success(hashMapOf(
+                result.success(
+                    hashMapOf(
                         "ID token" to authenticationResult.account.idToken,
-                        "access token" to authenticationResult.accessToken
-                ))
+                        "access token" to authenticationResult.accessToken,
+                        "user id" to authenticationResult.account.getId()
+                    )
+                )
             }
 
             override fun onError(exception: MsalException) {
@@ -233,10 +236,13 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 Log.d(TAG, "Successfully authenticated")
-                result.success(hashMapOf(
+                result.success(
+                    hashMapOf(
                         "ID token" to authenticationResult.account.idToken,
-                        "access token" to authenticationResult.accessToken
-                ))
+                        "access token" to authenticationResult.accessToken,
+                        "user id" to authenticationResult.account.getId()
+                    )
+                )
             }
 
             override fun onError(exception: MsalException) {
