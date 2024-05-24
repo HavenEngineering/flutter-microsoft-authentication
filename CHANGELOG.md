@@ -1,3 +1,7 @@
+## 0.5.6
+
+* Add 'user ID' param to auth result
+
 ## 0.5.5
 
 * Bump MSAL sdk version to 4.10.0
