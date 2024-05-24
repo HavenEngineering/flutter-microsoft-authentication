@@ -195,7 +195,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                     hashMapOf(
                         "ID token" to authenticationResult.account.idToken,
                         "access token" to authenticationResult.accessToken,
-                        "user id" to authenticationResult.account.getId()
+                        "user ID" to authenticationResult.account.id
                     )
                 )
             }
@@ -240,7 +240,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                     hashMapOf(
                         "ID token" to authenticationResult.account.idToken,
                         "access token" to authenticationResult.accessToken,
-                        "user id" to authenticationResult.account.getId()
+                        "user ID" to authenticationResult.account.id
                     )
                 )
             }
