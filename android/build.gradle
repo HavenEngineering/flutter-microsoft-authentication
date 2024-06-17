@@ -30,7 +30,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
 
 android {
-    compileSdk 33
+    compileSdk 34
     // Conditional for compatibility with AGP <4.2.
     if (project.android.hasProperty("namespace")) {
         namespace 'za.co.britehouse.flutter_microsoft_authentication'
@@ -59,6 +59,8 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'com.auth0:java-jwt:4.4.0'
+
     if (findProject(':msal') != null) {
         // For developer team only.
         localImplementation project(':msal')

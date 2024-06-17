@@ -3,6 +3,9 @@ package za.co.britehouse.flutter_microsoft_authentication
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import com.auth0.jwt.JWT
+import com.auth0.jwt.interfaces.DecodedJWT
+import com.auth0.jwt.interfaces.Claim
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.exception.MsalClientException
 import com.microsoft.identity.client.exception.MsalException
@@ -18,7 +21,6 @@ import io.flutter.plugin.common.MethodChannel.Result
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-
 
 class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
     private lateinit var channel: MethodChannel
@@ -191,11 +193,13 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 /* Successfully got a token, use it to call a protected resource - MSGraph */
                 Log.d(TAG, "Successfully authenticated")
+                val roles: List<String> = getRoles(token = authenticationResult.accessToken)
                 result.success(
                     hashMapOf(
                         "ID token" to authenticationResult.account.idToken,
                         "access token" to authenticationResult.accessToken,
-                        "user ID" to authenticationResult.account.id
+                        "user ID" to authenticationResult.account.id,
+                        "user roles" to roles
                     )
                 )
             }
@@ -236,11 +240,13 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 Log.d(TAG, "Successfully authenticated")
+                val roles: List<String> = getRoles(token = authenticationResult.accessToken)
                 result.success(
                     hashMapOf(
                         "ID token" to authenticationResult.account.idToken,
                         "access token" to authenticationResult.accessToken,
-                        "user ID" to authenticationResult.account.id
+                        "user ID" to authenticationResult.account.id,
+                        "user roles" to roles
                     )
                 )
             }
@@ -275,5 +281,16 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 result.error("MsalUserCancel", "User cancelled login.", null)
             }
         }
+    }
+
+    private fun getRoles(token: String?): List<String> {
+        if (token.isNullOrEmpty()) {
+            return emptyList()
+        }
+
+        val decodedJWT: DecodedJWT = JWT.decode(token)
+        val rolesClaim: Claim? = decodedJWT.getClaim("roles")
+
+        return rolesClaim?.asList(String::class.java) ?: emptyList()
     }
 }
