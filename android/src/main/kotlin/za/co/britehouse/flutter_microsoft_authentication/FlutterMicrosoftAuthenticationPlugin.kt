@@ -173,6 +173,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             result.error("MsalClientException", "Account not initialized", null)
         }
         mSingleAccountApp!!.signOut(object : ISingleAccountPublicClientApplication.SignOutCallback {
+            @Override
             override fun onSignOut() {
                 result.success(null)
             }
