@@ -173,7 +173,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             result.error("MsalClientException", "Account not initialized", null)
         }
 
-        SignInParameters.builder()
+       val parameters = SignInParameters.builder()
             //            .withScopes(scopes)
             .withActivity(binding!!.activity)
             .withCallback(getAuthInteractiveCallback(result))
