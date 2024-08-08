@@ -162,7 +162,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 //        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
 //    }
 
-    private fun acquireTokenInteractively(result: MethodChannel.Result) {
+    private fun acquireTokenInteractively(result: Result) {
         val parameters = SignInParameters.builder()
 //            .withScopes(scopes)
             .withCallback(getAuthInteractiveCallback(result))
