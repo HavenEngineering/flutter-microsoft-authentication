@@ -186,8 +186,8 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         })
     }
 
-    fun clearApplicationUserData(context: Context, result: MethodChannel.Result) {
-        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    private fun clearApplicationUserData(context: Context, result: MethodChannel.Result) {
+        val activityManager = (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
         val isSuccess = activityManager.clearApplicationUserData()
         result.success(isSuccess)
     }
