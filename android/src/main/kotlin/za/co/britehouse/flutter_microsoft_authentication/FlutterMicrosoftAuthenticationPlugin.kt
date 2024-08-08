@@ -189,14 +189,6 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         mSingleAccountApp!!.acquireTokenSilentAsync(parameters)
     }
 
-//    private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {
-//        if (mSingleAccountApp == null) {
-//            result.error("MsalClientException", "Account not initialized", null)
-//        }
-//
-//        return mSingleAccountApp!!.acquireTokenSilentAsync(scopes, authority, getAuthSilentCallback(result))
-//    }
-
     private fun signOut(result: Result) {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
