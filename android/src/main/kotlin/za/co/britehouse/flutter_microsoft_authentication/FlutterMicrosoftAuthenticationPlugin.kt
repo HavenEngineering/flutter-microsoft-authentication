@@ -87,7 +87,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         }
 
         when (call.method) {
-            "acquireTokenInteractively" -> acquireTokenInteractively(scopes, authority, result)
+            "acquireTokenInteractively" -> acquireTokenInteractively(scopes, result)
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
             "signOut" -> signOut(result)
             "init" -> initPlugin(configPath, result)
@@ -160,29 +160,29 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
     }
 
-    private fun acquireTokenInteractively(scopes: Array<String>, authority: String, result: Result) {
-        if (mSingleAccountApp == null) {
-            result.error("MsalClientException", "Account not initialized", null)
-        }
-
-        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
-    }
-
 //    private fun acquireTokenInteractively(scopes: Array<String>, result: Result) {
 //        if (mSingleAccountApp == null) {
 //            result.error("MsalClientException", "Account not initialized", null)
 //        }
 //
-//        val parameters = SignInParameters.builder()
-//            .withScopes(scopes.toList())
-//            .withActivity(activity!!)
-//            .withCallback(getAuthInteractiveCallback(result))
-//            .withPrompt(Prompt.LOGIN)
-//            .build()
-//
-//        mSingleAccountApp!!.signIn(parameters)
-//
+//        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
 //    }
+
+    private fun acquireTokenInteractively(scopes: Array<String>, result: Result) {
+        if (mSingleAccountApp == null) {
+            result.error("MsalClientException", "Account not initialized", null)
+        }
+
+        val parameters = SignInParameters.builder()
+            .withScopes(scopes.toList())
+            .withActivity(activity!!)
+            .withCallback(getAuthInteractiveCallback(result))
+            .withPrompt(Prompt.LOGIN)
+            .build()
+
+        mSingleAccountApp!!.signIn(parameters)
+
+    }
 
     private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {
         if (mSingleAccountApp == null) {
