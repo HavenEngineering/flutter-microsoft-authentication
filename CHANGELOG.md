@@ -1,3 +1,8 @@
+## 0.5.7
+
+* Update deprecated acquireTokenInteractively method
+* Update deprecated acquireTokenSilently method
+
 ## 0.5.6
 
 * Add 'user ID' param to auth result
