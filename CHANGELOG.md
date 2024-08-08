@@ -1,4 +1,4 @@
-## 0.5.7
+## 0.5.8
 
 * Update deprecated acquireTokenInteractively method
 * Update deprecated acquireTokenSilently method
