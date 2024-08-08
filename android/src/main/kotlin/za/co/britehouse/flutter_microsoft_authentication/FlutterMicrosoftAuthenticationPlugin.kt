@@ -1,6 +1,7 @@
 package za.co.britehouse.flutter_microsoft_authentication
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.util.Log
 import com.microsoft.identity.client.*
@@ -86,7 +87,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         }
 
         when (call.method) {
-            "acquireTokenInteractively" -> acquireTokenInteractively(scopes, authority, result)
+            "acquireTokenInteractively" -> acquireTokenInteractively(scopes, result)
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
             "signOut" -> signOut(result)
             "init" -> initPlugin(configPath, result)
@@ -127,37 +128,51 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             val context: Context = it.applicationContext
 
             PublicClientApplication.createSingleAccountPublicClientApplication(
-                    context,
-                    configFile,
-                    object : IPublicClientApplication.ISingleAccountApplicationCreatedListener {
-                        override fun onCreated(application: ISingleAccountPublicClientApplication) {
-                            /**
-                             * This test app assumes that the app is only going to support one account.
-                             * This requires "account_mode" : "SINGLE" in the config json file.
-                             *
-                             */
-                            Log.d(TAG, "INITIALIZED")
-                            mSingleAccountApp = application
-                            result.success(null)
-                        }
+                context,
+                configFile,
+                object : IPublicClientApplication.ISingleAccountApplicationCreatedListener {
+                    override fun onCreated(application: ISingleAccountPublicClientApplication) {
+                        /**
+                         * This test app assumes that the app is only going to support one account.
+                         * This requires "account_mode" : "SINGLE" in the config json file.
+                         *
+                         */
+                        Log.d(TAG, "INITIALIZED")
+                        mSingleAccountApp = application
+                        result.success(null)
+                    }
 
-                        override fun onError(exception: MsalException) {
-                            Log.e(TAG, exception.toString())
-                            result.error(exception.errorCode
-                                    ?: "Account not initialized", exception.toString(), null)
-                        }
-                    })
+                    override fun onError(exception: MsalException) {
+                        Log.e(TAG, exception.toString())
+                        result.error(
+                            exception.errorCode
+                                ?: "Account not initialized", exception.toString(), null
+                        )
+                    }
+                })
         }
-                ?: result.error("FlutterPluginException", "Flutter plugin binding is null, cannot continue configuration", null)
+            ?: result.error(
+                "FlutterPluginException",
+                "Flutter plugin binding is null, cannot continue configuration",
+                null
+            )
 
     }
 
-    private fun acquireTokenInteractively(scopes: Array<String>, authority: String, result: Result) {
+    private fun acquireTokenInteractively(scopes: Array<String>, result: Result) {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
         }
 
-        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
+        val parameters = SignInParameters.builder()
+            .withScopes(scopes.toList())
+            .withActivity(activity!!)
+            .withCallback(getAuthInteractiveCallback(result))
+            .withPrompt(Prompt.LOGIN)
+            .build()
+
+        mSingleAccountApp!!.signIn(parameters)
+
     }
 
     private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {
@@ -165,7 +180,13 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             result.error("MsalClientException", "Account not initialized", null)
         }
 
-        return mSingleAccountApp!!.acquireTokenSilentAsync(scopes, authority, getAuthSilentCallback(result))
+        val parameters = AcquireTokenSilentParameters.Builder()
+            .withScopes(scopes.toList())
+            .fromAuthority(authority)
+            .withCallback(getAuthSilentCallback(result))
+            .build()
+
+        mSingleAccountApp!!.acquireTokenSilentAsync(parameters)
     }
 
     private fun signOut(result: Result) {
@@ -209,16 +230,22 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                     is MsalClientException -> {
                         /* Exception inside MSAL, more info inside MsalError.java */
                         Log.d(TAG, "Authentication failed: MsalClientException")
-                        result.error(exception.errorCode
-                                ?: "MsalClientException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalClientException", exception.message, null
+                        )
 
                     }
+
                     is MsalServiceException -> {
                         /* Exception when communicating with the STS, likely config issue */
                         Log.d(TAG, "Authentication failed: MsalServiceException")
-                        result.error(exception.errorCode
-                                ?: "MsalServiceException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalServiceException", exception.message, null
+                        )
                     }
+
                     else -> result.error(exception.errorCode ?: "Msal", exception.message, null)
                 }
             }
@@ -252,19 +279,28 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 when (exception) {
                     is MsalClientException -> {
                         /* Exception inside MSAL, more info inside MsalError.java */
-                        result.error(exception.errorCode
-                                ?: "MsalClientException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalClientException", exception.message, null
+                        )
                     }
+
                     is MsalServiceException -> {
                         /* Exception when communicating with the STS, likely config issue */
-                        result.error(exception.errorCode
-                                ?: "MsalServiceException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalServiceException", exception.message, null
+                        )
                     }
+
                     is MsalUiRequiredException -> {
                         /* Tokens expired or no session, retry with interactive */
-                        result.error(exception.errorCode
-                                ?: "MsalUiRequiredException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalUiRequiredException", exception.message, null
+                        )
                     }
+
                     else -> result.error(exception.errorCode ?: "Msal", exception.message, null)
                 }
             }
