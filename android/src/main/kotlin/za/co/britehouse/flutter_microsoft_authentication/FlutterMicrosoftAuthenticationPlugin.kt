@@ -87,7 +87,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         }
 
         when (call.method) {
-            "acquireTokenInteractively" -> acquireTokenInteractively(result, scopes, binding!!)
+            "acquireTokenInteractively" -> acquireTokenInteractively(scopes, result)
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
             "signOut" -> signOut(result)
             "init" -> initPlugin(configPath, result)
@@ -95,7 +95,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             else -> result.notImplemented()
         }
     }
-    
+
     @Throws(IOException::class)
     private fun getConfigFile(path: String, binding: FlutterPlugin.FlutterPluginBinding): File {
         val key: String = binding.flutterAssets.getAssetFilePathByName(path)
@@ -168,7 +168,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 //        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
 //    }
 
-    private fun acquireTokenInteractively(scopes: Array<String>, binding: FlutterPlugin.FlutterPluginBinding, result: Result) {
+    private fun acquireTokenInteractively(scopes: Array<String>, result: Result) {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
         }
