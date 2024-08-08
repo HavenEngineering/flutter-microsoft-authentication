@@ -1,6 +1,7 @@
 package za.co.britehouse.flutter_microsoft_authentication
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.util.Log
 import com.microsoft.identity.client.*
@@ -90,6 +91,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
             "signOut" -> signOut(result)
             "init" -> initPlugin(configPath, result)
+            "clearUserData" -> clearApplicationUserData(context, result)
             else -> result.notImplemented()
         }
     }
@@ -173,7 +175,6 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             result.error("MsalClientException", "Account not initialized", null)
         }
         mSingleAccountApp!!.signOut(object : ISingleAccountPublicClientApplication.SignOutCallback {
-            @Override
             override fun onSignOut() {
                 result.success(null)
             }
@@ -183,6 +184,12 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 result.error(exception.errorCode ?: "SIGN_OUT", exception.toString(), null)
             }
         })
+    }
+
+    fun clearApplicationUserData(context: Context, result: MethodChannel.Result) {
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val isSuccess = activityManager.clearApplicationUserData()
+        result.success(isSuccess)
     }
 
     private fun getAuthInteractiveCallback(result: Result): AuthenticationCallback {
