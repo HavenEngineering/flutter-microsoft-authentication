@@ -129,28 +129,34 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             val context: Context = it.applicationContext
 
             PublicClientApplication.createSingleAccountPublicClientApplication(
-                    context,
-                    configFile,
-                    object : IPublicClientApplication.ISingleAccountApplicationCreatedListener {
-                        override fun onCreated(application: ISingleAccountPublicClientApplication) {
-                            /**
-                             * This test app assumes that the app is only going to support one account.
-                             * This requires "account_mode" : "SINGLE" in the config json file.
-                             *
-                             */
-                            Log.d(TAG, "INITIALIZED")
-                            mSingleAccountApp = application
-                            result.success(null)
-                        }
+                context,
+                configFile,
+                object : IPublicClientApplication.ISingleAccountApplicationCreatedListener {
+                    override fun onCreated(application: ISingleAccountPublicClientApplication) {
+                        /**
+                         * This test app assumes that the app is only going to support one account.
+                         * This requires "account_mode" : "SINGLE" in the config json file.
+                         *
+                         */
+                        Log.d(TAG, "INITIALIZED")
+                        mSingleAccountApp = application
+                        result.success(null)
+                    }
 
-                        override fun onError(exception: MsalException) {
-                            Log.e(TAG, exception.toString())
-                            result.error(exception.errorCode
-                                    ?: "Account not initialized", exception.toString(), null)
-                        }
-                    })
+                    override fun onError(exception: MsalException) {
+                        Log.e(TAG, exception.toString())
+                        result.error(
+                            exception.errorCode
+                                ?: "Account not initialized", exception.toString(), null
+                        )
+                    }
+                })
         }
-                ?: result.error("FlutterPluginException", "Flutter plugin binding is null, cannot continue configuration", null)
+            ?: result.error(
+                "FlutterPluginException",
+                "Flutter plugin binding is null, cannot continue configuration",
+                null
+            )
 
     }
 
@@ -163,17 +169,19 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 //    }
 
     private fun acquireTokenInteractively(result: Result) {
-        val parameters = this.activity?.let {
-            SignInParameters.builder()
-    //            .withScopes(scopes)
-                .withActivity(it)
-                .withCallback(getAuthInteractiveCallback(result))
-                .withPrompt(Prompt.LOGIN)
-                .build()
+        if (mSingleAccountApp == null || binding == null) {
+            result.error("MsalClientException", "Account not initialized", null)
         }
-        if (parameters != null) {
-            mSingleAccountApp?.signIn(parameters)
-        }
+
+        SignInParameters.builder()
+            //            .withScopes(scopes)
+            .withActivity(binding!!.activity)
+            .withCallback(getAuthInteractiveCallback(result))
+            .withPrompt(Prompt.LOGIN)
+            .build()
+
+        mSingleAccountApp!!.signIn(parameters)
+
     }
 
     private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {
@@ -231,16 +239,22 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                     is MsalClientException -> {
                         /* Exception inside MSAL, more info inside MsalError.java */
                         Log.d(TAG, "Authentication failed: MsalClientException")
-                        result.error(exception.errorCode
-                                ?: "MsalClientException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalClientException", exception.message, null
+                        )
 
                     }
+
                     is MsalServiceException -> {
                         /* Exception when communicating with the STS, likely config issue */
                         Log.d(TAG, "Authentication failed: MsalServiceException")
-                        result.error(exception.errorCode
-                                ?: "MsalServiceException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalServiceException", exception.message, null
+                        )
                     }
+
                     else -> result.error(exception.errorCode ?: "Msal", exception.message, null)
                 }
             }
@@ -274,19 +288,28 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 when (exception) {
                     is MsalClientException -> {
                         /* Exception inside MSAL, more info inside MsalError.java */
-                        result.error(exception.errorCode
-                                ?: "MsalClientException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalClientException", exception.message, null
+                        )
                     }
+
                     is MsalServiceException -> {
                         /* Exception when communicating with the STS, likely config issue */
-                        result.error(exception.errorCode
-                                ?: "MsalServiceException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalServiceException", exception.message, null
+                        )
                     }
+
                     is MsalUiRequiredException -> {
                         /* Tokens expired or no session, retry with interactive */
-                        result.error(exception.errorCode
-                                ?: "MsalUiRequiredException", exception.message, null)
+                        result.error(
+                            exception.errorCode
+                                ?: "MsalUiRequiredException", exception.message, null
+                        )
                     }
+
                     else -> result.error(exception.errorCode ?: "Msal", exception.message, null)
                 }
             }
