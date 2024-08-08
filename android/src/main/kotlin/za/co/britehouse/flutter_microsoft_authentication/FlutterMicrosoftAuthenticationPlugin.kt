@@ -91,7 +91,6 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
             "signOut" -> signOut(result)
             "init" -> initPlugin(configPath, result)
-//            "clearUserData" -> clearApplicationUserData(activity!!.applicationContext, result)
             else -> result.notImplemented()
         }
     }
@@ -160,14 +159,6 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
     }
 
-//    private fun acquireTokenInteractively(scopes: Array<String>, result: Result) {
-//        if (mSingleAccountApp == null) {
-//            result.error("MsalClientException", "Account not initialized", null)
-//        }
-//
-//        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
-//    }
-
     private fun acquireTokenInteractively(scopes: Array<String>, result: Result) {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
@@ -189,8 +180,22 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             result.error("MsalClientException", "Account not initialized", null)
         }
 
-        return mSingleAccountApp!!.acquireTokenSilentAsync(scopes, authority, getAuthSilentCallback(result))
+        val parameters = AcquireTokenSilentParameters.Builder()
+            .withScopes(scopes.toList())
+            .fromAuthority(authority)
+            .withCallback(getAuthSilentCallback(result))
+            .build()
+
+        mSingleAccountApp!!.acquireTokenSilentAsync(parameters)
     }
+
+//    private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {
+//        if (mSingleAccountApp == null) {
+//            result.error("MsalClientException", "Account not initialized", null)
+//        }
+//
+//        return mSingleAccountApp!!.acquireTokenSilentAsync(scopes, authority, getAuthSilentCallback(result))
+//    }
 
     private fun signOut(result: Result) {
         if (mSingleAccountApp == null) {
@@ -206,12 +211,6 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 result.error(exception.errorCode ?: "SIGN_OUT", exception.toString(), null)
             }
         })
-    }
-
-    private fun clearApplicationUserData(context: Context, result: MethodChannel.Result) {
-        val activityManager = (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager)
-        val isSuccess = activityManager.clearApplicationUserData()
-        result.success(isSuccess)
     }
 
     private fun getAuthInteractiveCallback(result: Result): AuthenticationCallback {
