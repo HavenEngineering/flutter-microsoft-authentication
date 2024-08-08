@@ -154,12 +154,22 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
     }
 
-    private fun acquireTokenInteractively(scopes: Array<String>, authority: String, result: Result) {
-        if (mSingleAccountApp == null) {
-            result.error("MsalClientException", "Account not initialized", null)
-        }
+//    private fun acquireTokenInteractively(scopes: Array<String>, authority: String, result: Result) {
+//        if (mSingleAccountApp == null) {
+//            result.error("MsalClientException", "Account not initialized", null)
+//        }
+//
+//        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
+//    }
 
-        return mSingleAccountApp!!.signIn(activity!!, "", scopes, getAuthInteractiveCallback(result))
+    private fun acquireTokenInteractively(result: MethodChannel.Result) {
+        val parameters = SignInParameters.builder()
+//            .withScopes(scopes)
+            .withCallback(getAuthInteractiveCallback(result))
+            .withPrompt(Prompt.LOGIN)
+            .build()
+
+        mSingleAccountApp?.signIn(parameters)
     }
 
     private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {
