@@ -66,17 +66,4 @@ class FlutterMicrosoftAuthentication {
       }
     }
   }
-
-  Future<void> get clearUserData async {
-    if (_isAndroid) await _didAndroidInitialize;
-    try {
-      return await _channel.invokeMethod('clearUserData', _createMethodcallArguments());
-    } on PlatformException catch (error) {
-      if (error.code == "no_current_account") {
-        return;
-      } else {
-        rethrow;
-      }
-    }
-  }
 }
