@@ -87,11 +87,11 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         }
 
         when (call.method) {
-            "acquireTokenInteractively" -> acquireTokenInteractively(scopes, authority, result)
+            "acquireTokenInteractively" -> acquireTokenInteractively(result)
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
             "signOut" -> signOut(result)
             "init" -> initPlugin(configPath, result)
-            "clearUserData" -> clearApplicationUserData(context, result)
+//            "clearUserData" -> clearApplicationUserData(context, result)
             else -> result.notImplemented()
         }
     }
