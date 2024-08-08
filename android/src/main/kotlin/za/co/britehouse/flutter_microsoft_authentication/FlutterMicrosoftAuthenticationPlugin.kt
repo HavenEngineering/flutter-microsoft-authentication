@@ -179,35 +179,13 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
         }
-        mSingleAccountApp!!.getCurrentAccountAsync(object : ISingleAccountPublicClientApplication.CurrentAccountCallback {
-            override fun onSuccess(currentAccount: IAccount?) {
             val parameters = AcquireTokenSilentParameters.Builder()
                 .withScopes(scopes.toList())
-                .forAccount(currentAccount)
+                .fromAuthority(authority)
                 .withCallback(getAuthSilentCallback(result))
                 .build()
+
             mSingleAccountApp!!.acquireTokenSilentAsync(parameters)
-        }
-
-            override fun onAccountLoaded(activeAccount: IAccount?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
-                TODO("Not yet implemented")
-            }
-
-            override fun onError(exception: MsalException) {
-                TODO("Not yet implemented")
-            }
-        })
-//            val parameters = AcquireTokenSilentParameters.Builder()
-//                .withScopes(scopes.toList())
-//                .fromAuthority(authority)
-//                .withCallback(getAuthSilentCallback(result))
-//                .build()
-//
-//            mSingleAccountApp!!.acquireTokenSilentAsync(parameters)
     }
 
     private fun signOut(result: Result) {
