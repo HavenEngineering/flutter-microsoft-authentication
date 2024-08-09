@@ -187,12 +187,10 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
             }
 
-            override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
-                TODO("Not yet implemented")
-            }
+            override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {}
 
             override fun onError(exception: MsalException) {
-                TODO("Not yet implemented")
+                result.error("MsalClientException", "Failed to get current account", exception.message)
             }
         })
     }
