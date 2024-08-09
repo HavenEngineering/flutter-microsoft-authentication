@@ -1,3 +1,7 @@
+## 0.5.9
+
+* Fix acquireTokenSilently method
+
 ## 0.5.8
 
 * Update deprecated acquireTokenInteractively method
