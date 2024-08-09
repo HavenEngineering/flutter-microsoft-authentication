@@ -127,8 +127,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             val configFile = getConfigFile(assetPath, it)
             val context: Context = it.applicationContext
 
-            PublicClientApplication.createSingleAccountPublicClientApplication(
-                context,
+            PublicClientApplication.createSingleAccountPublicClientApplication(context,
                 configFile,
                 object : IPublicClientApplication.ISingleAccountApplicationCreatedListener {
                     override fun onCreated(application: ISingleAccountPublicClientApplication) {
@@ -145,17 +144,13 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                     override fun onError(exception: MsalException) {
                         Log.e(TAG, exception.toString())
                         result.error(
-                            exception.errorCode
-                                ?: "Account not initialized", exception.toString(), null
+                            exception.errorCode ?: "Account not initialized", exception.toString(), null
                         )
                     }
                 })
-        }
-            ?: result.error(
-                "FlutterPluginException",
-                "Flutter plugin binding is null, cannot continue configuration",
-                null
-            )
+        } ?: result.error(
+            "FlutterPluginException", "Flutter plugin binding is null, cannot continue configuration", null
+        )
 
     }
 
@@ -164,12 +159,8 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             result.error("MsalClientException", "Account not initialized", null)
         }
 
-        val parameters = SignInParameters.builder()
-            .withScopes(scopes.toList())
-            .withActivity(activity!!)
-            .withCallback(getAuthInteractiveCallback(result))
-            .withPrompt(Prompt.LOGIN)
-            .build()
+        val parameters = SignInParameters.builder().withScopes(scopes.toList()).withActivity(activity!!)
+            .withCallback(getAuthInteractiveCallback(result)).withPrompt(Prompt.LOGIN).build()
 
         mSingleAccountApp!!.signIn(parameters)
 
@@ -179,13 +170,31 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
         }
-            val parameters = AcquireTokenSilentParameters.Builder()
-                .withScopes(scopes.toList())
-                .fromAuthority(authority)
-                .withCallback(getAuthSilentCallback(result))
-                .build()
+        mSingleAccountApp!!.getCurrentAccountAsync(object :
+            ISingleAccountPublicClientApplication.CurrentAccountCallback {
+            override fun onAccountLoaded(activeAccount: IAccount?) {
+                if (activeAccount == null) {
+                    result.error("MsalClientException", "No account signed in", null)
+                }
+                val parameters = AcquireTokenSilentParameters.Builder()
+                    .withScopes(scopes.toList())
+                    .fromAuthority(authority)
+                    .forAccount(activeAccount)
+                    .withCallback(getAuthSilentCallback(result))
+                    .build()
 
-            mSingleAccountApp!!.acquireTokenSilentAsync(parameters)
+                mSingleAccountApp!!.acquireTokenSilentAsync(parameters)
+
+            }
+
+            override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onError(exception: MsalException) {
+                TODO("Not yet implemented")
+            }
+        })
     }
 
     private fun signOut(result: Result) {
@@ -208,8 +217,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
         return object : AuthenticationCallback {
 
-            override fun onSuccess(authenticationResult: IAuthenticationResult) {
-                /* Successfully got a token, use it to call a protected resource - MSGraph */
+            override fun onSuccess(authenticationResult: IAuthenticationResult) {/* Successfully got a token, use it to call a protected resource - MSGraph */
                 Log.d(TAG, "Successfully authenticated")
                 result.success(
                     hashMapOf(
@@ -220,28 +228,23 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 )
             }
 
-            override fun onError(exception: MsalException) {
-                /* Failed to acquireToken */
+            override fun onError(exception: MsalException) {/* Failed to acquireToken */
 
                 Log.d(TAG, "Authentication failed: ${exception.errorCode}")
 
                 when (exception) {
-                    is MsalClientException -> {
-                        /* Exception inside MSAL, more info inside MsalError.java */
+                    is MsalClientException -> {/* Exception inside MSAL, more info inside MsalError.java */
                         Log.d(TAG, "Authentication failed: MsalClientException")
                         result.error(
-                            exception.errorCode
-                                ?: "MsalClientException", exception.message, null
+                            exception.errorCode ?: "MsalClientException", exception.message, null
                         )
 
                     }
 
-                    is MsalServiceException -> {
-                        /* Exception when communicating with the STS, likely config issue */
+                    is MsalServiceException -> {/* Exception when communicating with the STS, likely config issue */
                         Log.d(TAG, "Authentication failed: MsalServiceException")
                         result.error(
-                            exception.errorCode
-                                ?: "MsalServiceException", exception.message, null
+                            exception.errorCode ?: "MsalServiceException", exception.message, null
                         )
                     }
 
@@ -249,8 +252,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 }
             }
 
-            override fun onCancel() {
-                /* User canceled the authentication */
+            override fun onCancel() {/* User canceled the authentication */
                 Log.d(TAG, "User cancelled login.")
                 result.error("MsalUserCancel", "User cancelled login.", null)
             }
@@ -271,32 +273,25 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 )
             }
 
-            override fun onError(exception: MsalException) {
-                /* Failed to acquireToken */
+            override fun onError(exception: MsalException) {/* Failed to acquireToken */
                 Log.d(TAG, "Authentication failed: ${exception.message}")
 
                 when (exception) {
-                    is MsalClientException -> {
-                        /* Exception inside MSAL, more info inside MsalError.java */
+                    is MsalClientException -> {/* Exception inside MSAL, more info inside MsalError.java */
                         result.error(
-                            exception.errorCode
-                                ?: "MsalClientException", exception.message, null
+                            exception.errorCode ?: "MsalClientException", exception.message, null
                         )
                     }
 
-                    is MsalServiceException -> {
-                        /* Exception when communicating with the STS, likely config issue */
+                    is MsalServiceException -> {/* Exception when communicating with the STS, likely config issue */
                         result.error(
-                            exception.errorCode
-                                ?: "MsalServiceException", exception.message, null
+                            exception.errorCode ?: "MsalServiceException", exception.message, null
                         )
                     }
 
-                    is MsalUiRequiredException -> {
-                        /* Tokens expired or no session, retry with interactive */
+                    is MsalUiRequiredException -> {/* Tokens expired or no session, retry with interactive */
                         result.error(
-                            exception.errorCode
-                                ?: "MsalUiRequiredException", exception.message, null
+                            exception.errorCode ?: "MsalUiRequiredException", exception.message, null
                         )
                     }
 
@@ -304,8 +299,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                 }
             }
 
-            override fun onCancel() {
-                /* User cancelled the authentication */
+            override fun onCancel() {/* User cancelled the authentication */
                 Log.d(TAG, "User cancelled login.")
                 result.error("MsalUserCancel", "User cancelled login.", null)
             }
