@@ -1,3 +1,7 @@
+## 0.5.10
+
+* Fix acquireTokenSilently method with early return
+
 ## 0.5.9
 
 * Fix acquireTokenSilently method
