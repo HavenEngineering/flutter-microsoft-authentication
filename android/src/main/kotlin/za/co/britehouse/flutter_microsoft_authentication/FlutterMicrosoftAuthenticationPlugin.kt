@@ -178,7 +178,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             ISingleAccountPublicClientApplication.CurrentAccountCallback {
             override fun onAccountLoaded(activeAccount: IAccount?) {
                 if (activeAccount == null) {
-                    result.error("MsalClientException", "No account signed in", null)
+                    return
                 }
                 val parameters = AcquireTokenSilentParameters.Builder()
                     .withScopes(scopes.toList())
