@@ -10,6 +10,7 @@ class FlutterMicrosoftAuthentication {
   String _kClientID, _kAuthority;
   String _androidConfigAssetPath;
   bool _isAndroid;
+  bool? shouldLoginAutomatically;
 
   late Future _didAndroidInitialize;
 
@@ -18,16 +19,23 @@ class FlutterMicrosoftAuthentication {
     required String kAuthority,
     required List<String> kScopes,
     required String androidConfigAssetPath,
-  })   : _kClientID = kClientID,
+    bool? shouldLoginAutomatically,
+  })  : _kClientID = kClientID,
         _kAuthority = kAuthority,
         _kScopes = kScopes,
+        shouldLoginAutomatically = shouldLoginAutomatically,
         _androidConfigAssetPath = androidConfigAssetPath,
         _isAndroid = Platform.isAndroid {
     _initAndroid();
   }
 
   Map<String, dynamic> _createMethodcallArguments() {
-    var res = <String, dynamic>{"kScopes": _kScopes, "kClientID": _kClientID, "kAuthority": _kAuthority};
+    var res = <String, dynamic>{
+      "kScopes": _kScopes,
+      "kClientID": _kClientID,
+      "kAuthority": _kAuthority,
+      "shouldLoginAutomatically": shouldLoginAutomatically,
+    };
     if (Platform.isAndroid) {
       res.addAll({"configPath": _androidConfigAssetPath});
     }

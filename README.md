@@ -7,7 +7,8 @@ FlutterMicrosoftAuthentication fma = FlutterMicrosoftAuthentication(
   kClientID: "<client-id>",
   kAuthority: "https://login.microsoftonline.com/organizations",
   kScopes: ["User.Read", "User.ReadBasic.All"],
-  androidConfigAssetPath: "assets/auth_config.json" // Android MSAL Config file
+  androidConfigAssetPath: "assets/auth_config.json", // Android MSAL Config file
+  shouldLoginAutomatically: null // boolean Automatically login if there is an active account
 );
 
 // Sign in interactively
