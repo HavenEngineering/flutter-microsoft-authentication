@@ -66,7 +66,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         val scopes: Array<String>? = scopesArg?.toTypedArray()
         val authority: String? = call.argument("kAuthority")
         val configPath: String? = call.argument("configPath")
-        val shouldLoginAutomatically: bool? = call.argument("shouldLoginAutomatically")
+        val shouldLoginAutomatically: boolean? = call.argument("shouldLoginAutomatically")
 
 
         if (configPath == null) {
@@ -155,7 +155,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
     }
 
-    private fun acquireTokenInteractively(scopes: Array<String>, result: Result, shouldLoginAutomatically: bool?) {
+    private fun acquireTokenInteractively(scopes: Array<String>, result: Result, shouldLoginAutomatically: boolean?) {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
         }
