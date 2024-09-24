@@ -66,6 +66,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         val scopes: Array<String>? = scopesArg?.toTypedArray()
         val authority: String? = call.argument("kAuthority")
         val configPath: String? = call.argument("configPath")
+        val shouldLoginAutomatically: bool? = call.argument("shouldLoginAutomatically")
 
 
         if (configPath == null) {
@@ -87,7 +88,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
         }
 
         when (call.method) {
-            "acquireTokenInteractively" -> acquireTokenInteractively(scopes, result)
+            "acquireTokenInteractively" -> acquireTokenInteractively(scopes, result, shouldLoginAutomatically)
             "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
             "signOut" -> signOut(result)
             "init" -> initPlugin(configPath, result)
@@ -154,7 +155,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
 
     }
 
-    private fun acquireTokenInteractively(scopes: Array<String>, result: Result) {
+    private fun acquireTokenInteractively(scopes: Array<String>, result: Result, shouldLoginAutomatically: bool?) {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
         }
@@ -163,7 +164,7 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
             .withScopes(scopes.toList())
             .withActivity(activity!!)
             .withCallback(getAuthInteractiveCallback(result))
-            .withPrompt(Prompt.LOGIN)
+            .withPrompt(if (shouldLoginAutomatically == true) Prompt.SELECT_ACCOUNT else Prompt.LOGIN)
             .build()
 
         mSingleAccountApp!!.signIn(parameters)
