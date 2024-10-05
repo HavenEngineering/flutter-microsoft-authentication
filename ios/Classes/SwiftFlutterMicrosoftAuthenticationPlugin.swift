@@ -135,24 +135,14 @@ extension ViewController {
 
     func acquireTokenSilently(flutterResult: @escaping FlutterResult) {
 
-        guard let applicationContext = self.applicationContext else { return }
+        guard let applicationContext = self.applicationContext else {
+            flutterResult(FlutterError(code: "AUTH_ERROR", message: "Application context not initialized", details: nil))
+            return
+        }
 
-        /**
+        let currentAccount = self.currentAccount(flutterResult: flutterResult)
 
-         Acquire a token for an existing account silently
-
-         - forScopes:           Permissions you want included in the access token received
-         in the result in the completionBlock. Not all scopes are
-         guaranteed to be included in the access token returned.
-         - account:             An account object that we retrieved from the application object before that the
-         authentication flow will be locked down to.
-         - completionBlock:     The completion block that will be called when the authentication
-         flow completes, or encounters an error.
-         */
-
-        let currentAccount = self.currentAccount(flutterResult: flutterResult);
-
-        if(currentAccount == nil) {
+        if currentAccount == nil {
             DispatchQueue.main.async {
                 self.acquireTokenInteractively(flutterResult: flutterResult)
             }
@@ -162,25 +152,15 @@ extension ViewController {
         let parameters = MSALSilentTokenParameters(scopes: kScopes, account: currentAccount!)
 
         applicationContext.acquireTokenSilent(with: parameters) { (result, error) in
-
-            if let error = error {
-                let nsError = error as NSError
-
-                // interactionRequired means we need to ask the user to sign-in. This usually happens
-                // when the user's Refresh Token is expired or if the user has changed their password
-                // among other possible reasons.
-
-                if (nsError.domain == MSALErrorDomain) {
-
-                    if (nsError.code == MSALError.interactionRequired.rawValue) {
-
-                        DispatchQueue.main.async {
-                            self.acquireTokenInteractively(flutterResult: flutterResult)
-                        }
-                        return
+            if let error = error as NSError? {
+                if error.domain == MSALErrorDomain && error.code == MSALError.interactionRequired.rawValue {
+                    DispatchQueue.main.async {
+                        self.acquireTokenInteractively(flutterResult: flutterResult)
                     }
+                    return
                 }
-                flutterResult(FlutterError(code: nsError.code.description, message: nsError.userInfo.description, details: nsError.domain))
+
+                flutterResult(FlutterError(code: error.code.description, message: error.userInfo.description, details: error.domain))
                 print("Could not acquire token silently: \(error)")
                 return
             }
@@ -191,14 +171,13 @@ extension ViewController {
                 return
             }
 
+            // Token acquired successfully
             self.accessToken = result.accessToken
             print("Refreshed Access token is \(self.accessToken)")
 
             flutterResult(["user ID": result.account.identifier, "access token": result.accessToken, "ID token": result.idToken])
         }
     }
-
-}
 
 
 // MARK: Get account and removing cache
