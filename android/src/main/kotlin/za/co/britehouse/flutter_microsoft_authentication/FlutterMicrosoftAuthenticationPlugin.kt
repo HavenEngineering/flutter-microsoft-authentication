@@ -174,13 +174,17 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
     private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {
         if (mSingleAccountApp == null) {
             result.error("MsalClientException", "Account not initialized", null)
+            return
         }
+
         mSingleAccountApp!!.getCurrentAccountAsync(object :
             ISingleAccountPublicClientApplication.CurrentAccountCallback {
             override fun onAccountLoaded(activeAccount: IAccount?) {
                 if (activeAccount == null) {
+                    result.error("MsalClientException", "No active account found", null)
                     return
                 }
+
                 val parameters = AcquireTokenSilentParameters.Builder()
                     .withScopes(scopes.toList())
                     .fromAuthority(authority)
@@ -189,10 +193,17 @@ class FlutterMicrosoftAuthenticationPlugin : FlutterPlugin, ActivityAware, Metho
                     .build()
 
                 mSingleAccountApp!!.acquireTokenSilentAsync(parameters)
-
             }
 
-            override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {}
+            override fun onAccountChanged(priorAccount: IAccount?, currentAccount: IAccount?) {
+                if (currentAccount == null) {
+                    // If there is no current account, it indicates the user has been signed out or account changed.
+                    signOut(result)
+                } else {
+                    // Handle account change if needed (e.g., reset the session, prompt user, etc.)
+                    result.success("Account changed successfully")
+                }
+            }
 
             override fun onError(exception: MsalException) {
                 result.error("MsalClientException", "Failed to get current account", exception.message)
