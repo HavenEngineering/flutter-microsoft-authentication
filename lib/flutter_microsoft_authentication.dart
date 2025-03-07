@@ -39,7 +39,6 @@ class FlutterMicrosoftAuthentication {
     if (Platform.isAndroid) {
       res.addAll({"configPath": _androidConfigAssetPath});
     }
-    print(res);
     return res;
   }
 
@@ -61,6 +60,26 @@ class FlutterMicrosoftAuthentication {
     return result;
   }
 
+  /// Refreshes the access token using the refresh token.
+  /// This method should be called when the access token is about to expire.
+  /// Returns a Map containing the refreshed tokens and their expiration time.
+  /// Throws a PlatformException if the refresh fails.
+  Future<Map> refreshToken() async {
+    if (_isAndroid) await _didAndroidInitialize;
+    try {
+      final dynamic result = await _channel.invokeMethod('refreshToken', _createMethodcallArguments());
+      return result;
+    } on PlatformException catch (error) {
+      if (error.code == "InteractiveAuthRequired") {
+        // Special handling for when silent refresh isn't possible and interactive auth is needed
+        // Rethrow with the same code so callers can handle this case specifically
+        rethrow;
+      } else {
+        rethrow;
+      }
+    }
+  }
+
   /// Sign out of current active account.
   Future<void> get signOut async {
     if (_isAndroid) await _didAndroidInitialize;
@@ -72,6 +91,25 @@ class FlutterMicrosoftAuthentication {
       } else {
         rethrow;
       }
+    }
+  }
+
+  /// Checks if there's a current active account.
+  /// Returns true if there's an active account, false otherwise.
+  Future<bool> get hasCurrentAccount async {
+    if (_isAndroid) await _didAndroidInitialize;
+    try {
+      // Using acquireTokenSilently as a way to check for current account
+      // If it succeeds, there's an active account
+      await _channel.invokeMethod('acquireTokenSilently', _createMethodcallArguments());
+      return true;
+    } on PlatformException catch (error) {
+      if (error.code == "MsalClientException" &&
+          error.message?.contains("No active account") == true) {
+        return false;
+      }
+      // For other errors, we still consider there's no valid current account
+      return false;
     }
   }
 }
