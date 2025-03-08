@@ -20,12 +20,12 @@ class FlutterMicrosoftAuthentication {
     required List<String> kScopes,
     required String androidConfigAssetPath,
     bool? shouldLoginAutomatically,
-  })  : _kClientID = kClientID,
-        _kAuthority = kAuthority,
-        _kScopes = kScopes,
-        shouldLoginAutomatically = shouldLoginAutomatically,
-        _androidConfigAssetPath = androidConfigAssetPath,
-        _isAndroid = Platform.isAndroid {
+  }) : _kClientID = kClientID,
+       _kAuthority = kAuthority,
+       _kScopes = kScopes,
+       shouldLoginAutomatically = shouldLoginAutomatically,
+       _androidConfigAssetPath = androidConfigAssetPath,
+       _isAndroid = Platform.isAndroid {
     _initAndroid();
   }
 
@@ -63,21 +63,10 @@ class FlutterMicrosoftAuthentication {
   /// Refreshes the access token using the refresh token.
   /// This method should be called when the access token is about to expire.
   /// Returns a Map containing the refreshed tokens and their expiration time.
-  /// Throws a PlatformException if the refresh fails.
-  Future<Map> refreshToken() async {
+  Future<Map> get refreshToken async {
     if (_isAndroid) await _didAndroidInitialize;
-    try {
-      final dynamic result = await _channel.invokeMethod('refreshToken', _createMethodcallArguments());
-      return result;
-    } on PlatformException catch (error) {
-      if (error.code == "InteractiveAuthRequired") {
-        // Special handling for when silent refresh isn't possible and interactive auth is needed
-        // Rethrow with the same code so callers can handle this case specifically
-        rethrow;
-      } else {
-        rethrow;
-      }
-    }
+    final dynamic result = await _channel.invokeMethod('refreshToken', _createMethodcallArguments());
+    return result;
   }
 
   /// Sign out of current active account.
@@ -104,8 +93,7 @@ class FlutterMicrosoftAuthentication {
       await _channel.invokeMethod('acquireTokenSilently', _createMethodcallArguments());
       return true;
     } on PlatformException catch (error) {
-      if (error.code == "MsalClientException" &&
-          error.message?.contains("No active account") == true) {
+      if (error.code == "MsalClientException" && error.message?.contains("No active account") == true) {
         return false;
       }
       // For other errors, we still consider there's no valid current account
